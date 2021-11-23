@@ -1,8 +1,29 @@
+require("dotenv").config();
 var express = require("express");
+var mongoose = require("mongoose");
 var cors = require("cors");
 
 // Variables
-var port = 3000;
+var port = process.env.NODE_DOCKER_PORT || 3001;
+
+//  NOTE(numank): Replace URI with
+//    `mongodb://localhost:${process.env.MONGODB_DOCKER_PORT}/dentistDB`
+//    incase of use without docker
+var mongoURI = `mongodb://mongodb:${process.env.MONGODB_DOCKER_PORT}/dentistDB`;
+
+// Connect to MongoDB
+mongoose.connect(
+  mongoURI,
+  { useNewUrlParser: true, useUnifiedTopology: true },
+  function (err) {
+    if (err) {
+      console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
+      console.error(err.stack);
+      process.exit(1);
+    }
+    console.log(`Connected to MongoDB with URI: ${mongoURI}`);
+  }
+);
 
 // Create Express app
 var app = express();
@@ -39,7 +60,6 @@ app.use(function (err, req, res, next) {
 app.listen(port, function (err) {
   if (err) throw err;
   console.log(`Express server listening on port ${port}, in ${env} mode`);
-  console.log(`Dentist Backend Microservice: http://localhost:${port}/api/`);
 });
 
 module.exports = app;
