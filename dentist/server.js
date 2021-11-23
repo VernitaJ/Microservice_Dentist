@@ -2,14 +2,26 @@ require("dotenv").config();
 var express = require("express");
 var mongoose = require("mongoose");
 var cors = require("cors");
+var mqtt = require("mqtt");
 
 // Variables
 var port = process.env.NODE_DOCKER_PORT || 3001;
 
-//  NOTE(numank): Replace URI with
-//    `mongodb://localhost:${process.env.MONGODB_DOCKER_PORT}/dentistDB`
-//    incase of use without docker
+// NOTE(numank): Replace mongoURI with
+//   `mongodb://localhost:${process.env.MONGODB_DOCKER_PORT}/dentistDB`
+//   incase of use without docker.
 var mongoURI = `mongodb://mongodb:${process.env.MONGODB_DOCKER_PORT}/dentistDB`;
+
+// NOTE(numank): Replace brokerURI with
+//   `mqtt://localhost:${process.env.BROKER_PORT}`
+//   incase of use without docker.
+//  This might create problems in the future.
+var brokerURI = `mqtt://host.docker.internal:${process.env.BROKER_PORT}`;
+
+var broker = mqtt.connect(brokerURI, {
+  username: process.env.BROKER_USERNAME,
+  password: process.env.BROKER_PASSWORD,
+});
 
 // Connect to MongoDB
 mongoose.connect(
