@@ -25,6 +25,11 @@ mqttClient.on("connect", function () {
       console.log("Failed to connect import/dentist", err);
     }
   });
+  mqttClient.subscribe("frontend/dentist/#", (err) => {
+    if (err) {
+      console.log("Failed to connect frontend/dentist/#", err);
+    }
+  });
 });
 
 // Connect to MongoDB
