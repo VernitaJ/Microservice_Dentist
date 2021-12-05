@@ -1,7 +1,7 @@
 {
   "name": "dentist",
   "version": "1.0.0",
-  "description": "Backend microservice for dentists, Express and MongoDB",
+  "description": "Backend microservice for dentists, NodeJS, MongoDB and MQTT",
   "main": "server.js",
   "scripts": {
     "start": "node ./server.js",
@@ -17,7 +17,6 @@
   "author": "numank",
   "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "mongoose": "^6.0.13",
     "mqtt": "^4.2.8"
