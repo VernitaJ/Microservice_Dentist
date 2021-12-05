@@ -1,21 +1,30 @@
 require("dotenv").config();
-var mongoose = require("mongoose");
-var mqtt = require("mqtt");
+const mongoose = require("mongoose");
+const mqtt = require("mqtt");
+const requestEvaluator = require("./requestEvaluator");
 
 // NOTE(numank): Replace mongoURI with
 //   `mongodb://localhost:${process.env.MONGODB_DOCKER_PORT}/dentistDB`
 //   incase of use without docker.
-var mongoURI = `mongodb://mongodb:${process.env.MONGODB_DOCKER_PORT}/dentistDB`;
+const mongoURI = `mongodb://mongodb:${process.env.MONGODB_DOCKER_PORT}/dentistDB`;
 
 // NOTE(numank): Replace brokerURI with
 //   `mqtt://localhost:${process.env.BROKER_PORT}`
 //   incase of use without docker.
 //  This might create problems in the future.
-var brokerURI = `mqtt://host.docker.internal:${process.env.BROKER_PORT}`;
+const brokerURI = `mqtt://host.docker.internal:${process.env.BROKER_PORT}`;
 
-var broker = mqtt.connect(brokerURI, {
+const mqttClient = mqtt.connect(brokerURI, {
   username: process.env.BROKER_USERNAME,
   password: process.env.BROKER_PASSWORD,
+});
+
+mqttClient.on("connect", function () {
+  mqttClient.subscribe("import/dentist", (err) => {
+    if (err) {
+      console.log("Failed to connect import/dentist", err);
+    }
+  });
 });
 
 // Connect to MongoDB
@@ -31,3 +40,5 @@ mongoose.connect(
     console.log(`Connected to MongoDB with URI: ${mongoURI}`);
   }
 );
+
+requestEvaluator(mqttClient);
