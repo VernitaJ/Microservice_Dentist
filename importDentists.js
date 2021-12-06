@@ -1,12 +1,12 @@
 const dentistModel = require("./models/dentists");
-module.exports = importDentists = (dataToImport) => {
+module.exports = importDentists = (dataToImport, mqttClient) => {
   const dentistList = JSON.parse(dataToImport);
   dentistList.isArray
-    ? dentistList.forEach((dentist) => importDentist(dentist))
-    : importDentist(dentistList);
+    ? dentistList.forEach((dentist) => importDentist(dentist, mqttClient))
+    : importDentist(dentistList, mqttClient);
 };
 
-const importDentist = (dentist) => {
+const importDentist = (dentist, mqttClient) => {
   try {
     const dentistObj = {
       id: dentist.id,
@@ -30,12 +30,24 @@ const importDentist = (dentist) => {
     const newDentist = new dentistModel(dentistObj);
     newDentist
       .save()
-      .then(() =>
-        console.log(`Dentist with id:${dentist.id} successfully imported.`)
-      )
+      .then((dentist) => {
+        console.log(`Dentist with id:${dentist.id} successfully imported.`);
+        publishAvailableHoursToMng(dentist, mqttClient);
+      })
       .catch((err) => console.log(err));
   } catch (err) {
     console.log(`Import error on id:${dentist.id}! `, err);
     return;
   }
+};
+
+const publishAvailableHoursToMng = (dentist, mqttClient) => {
+  console.log("!!!!!!!!!!!!called!!!!!!!!!!!!");
+  const openingHours = (({ id, dentists, openingHours }) => ({
+    id,
+    dentists,
+    openingHours,
+  }))(dentist);
+  const payload = JSON.stringify({ openingHours });
+  mqttClient.publish("dentist/openinghour", payload);
 };
