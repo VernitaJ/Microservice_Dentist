@@ -42,7 +42,6 @@ const importDentist = (dentist, mqttClient) => {
 };
 
 const publishAvailableHoursToMng = (dentist, mqttClient) => {
-  console.log("!!!!!!!!!!!!called!!!!!!!!!!!!");
   const openingHours = (({ id, dentists, openingHours }) => ({
     id,
     dentists,
