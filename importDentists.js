@@ -27,11 +27,15 @@ const importDentist = (dentist, mqttClient) => {
         friday: dentist.friday,
       },
     };
-    const newDentist = new dentistModel(dentistObj);
-    newDentist
-      .save()
-      .then((dentist) => {
-        console.log(`Dentist with id:${dentist.id} successfully imported.`);
+    const filter = { "id": dentistObj.id } 
+    dentistModel.findOneAndUpdate(filter, dentistObj, {
+      new: true,
+      upsert: true, //Create new, if record doesn't exist.
+      rawResult: true
+    })
+      .then((result) => {
+        const action = result.lastErrorObject.updatedExisting ? "updated" : "imported"
+        console.log(`Dentist with id:${result.value.id} successfully ${action}.`);
         publishAvailableHoursToMng(dentist, mqttClient);
       })
       .catch((err) => console.log(err));
