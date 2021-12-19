@@ -8,6 +8,7 @@ const dentistSchema = new Schema({
   dentists: { type: Number, required: true },
   address: { type: String },
   city: { type: String },
+  email: { type: String },
   coordinate: {
     type: { type: Object },
     longitude: String,

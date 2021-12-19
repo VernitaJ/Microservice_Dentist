@@ -15,6 +15,7 @@ const importDentist = (dentist, mqttClient) => {
       dentists: dentist.dentists,
       address: dentist.address,
       city: dentist.city,
+      email: dentist.email,
       coordinate: {
         longitude: dentist.longitude,
         latitude: dentist.latitude,
