@@ -37,7 +37,8 @@ const importDentist = (dentist, mqttClient) => {
       .then((result) => {
         const action = result.lastErrorObject.updatedExisting ? "updated" : "imported"
         console.log(`Dentist with id:${result.value.id} successfully ${action}.`);
-        publishAvailableHoursToMng(dentist, mqttClient);
+        publishAvailableHoursToMng(dentistObj, mqttClient);
+        dentist.email && publishEmailToBookingMng(dentist, mqttClient);
       })
       .catch((err) => console.log(err));
   } catch (err) {
@@ -54,4 +55,9 @@ const publishAvailableHoursToMng = (dentist, mqttClient) => {
   }))(dentist);
   const payload = JSON.stringify({ openingHours });
   mqttClient.publish("dentist/openinghour", payload);
+};
+
+const publishEmailToBookingMng = (dentist, mqttClient) => {
+  const payload = JSON.stringify({ id: dentist.id.toString(), email: dentist.email });
+  mqttClient.publish("dentist/email", payload);
 };
