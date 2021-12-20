@@ -15,6 +15,7 @@ const importDentist = (dentist, mqttClient) => {
       dentists: dentist.dentists,
       address: dentist.address,
       city: dentist.city,
+      email: dentist.email,
       coordinate: {
         longitude: dentist.longitude,
         latitude: dentist.latitude,
@@ -27,12 +28,17 @@ const importDentist = (dentist, mqttClient) => {
         friday: dentist.friday,
       },
     };
-    const newDentist = new dentistModel(dentistObj);
-    newDentist
-      .save()
-      .then((dentist) => {
-        console.log(`Dentist with id:${dentist.id} successfully imported.`);
-        publishAvailableHoursToMng(dentist, mqttClient);
+    const filter = { "id": dentistObj.id } 
+    dentistModel.findOneAndUpdate(filter, dentistObj, {
+      new: true,
+      upsert: true, //Create new, if record doesn't exist.
+      rawResult: true
+    })
+      .then((result) => {
+        const action = result.lastErrorObject.updatedExisting ? "updated" : "imported"
+        console.log(`Dentist with id:${result.value.id} successfully ${action}.`);
+        publishAvailableHoursToMng(dentistObj, mqttClient);
+        dentist.email && publishEmailToBookingMng(dentist, mqttClient);
       })
       .catch((err) => console.log(err));
   } catch (err) {
@@ -49,4 +55,9 @@ const publishAvailableHoursToMng = (dentist, mqttClient) => {
   }))(dentist);
   const payload = JSON.stringify({ openingHours });
   mqttClient.publish("dentist/openinghour", payload);
+};
+
+const publishEmailToBookingMng = (dentist, mqttClient) => {
+  const payload = JSON.stringify({ id: dentist.id.toString(), email: dentist.email });
+  mqttClient.publish("dentist/email", payload);
 };
